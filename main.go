@@ -1,20 +1,21 @@
-package htbx
+package main
 
 import (
 	"fmt"
 	"github.com/gorilla/mux"
 	"net/http"
 	"net/http/httputil"
+	"strings"
 	"strconv"
 )
 
-func init() {
+func main() {
 	rtr := mux.NewRouter()
 	rtr.HandleFunc("/status/{status:[0-9]+}", statusCodeHandler)
 	rtr.HandleFunc("/dump", dumpRequestHandler)
 	rtr.HandleFunc("/ip", remoteAddrHandler)
 	rtr.HandleFunc("/useragent", userAgentHandler)
-	http.Handle("/", rtr)
+	http.ListenAndServe(":8080", rtr)
 }
 
 func dumpRequestHandler(w http.ResponseWriter, r *http.Request) {
@@ -29,7 +30,16 @@ func dumpRequestHandler(w http.ResponseWriter, r *http.Request) {
 
 func remoteAddrHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/plain")
-	fmt.Fprintln(w, r.RemoteAddr)
+	ipAddress := r.RemoteAddr
+	fwdAddress := r.Header.Get("X-Forwarded-For")
+	if fwdAddress != "" {
+		ipAddress = fwdAddress // If it's a single IP, then awesome!
+		ips := strings.Split(fwdAddress, ", ")
+		if len(ips) > 1 {
+			ipAddress = ips[0]
+		}
+	}
+	fmt.Fprintln(w, ipAddress)
 }
 
 func userAgentHandler(w http.ResponseWriter, r *http.Request) {
