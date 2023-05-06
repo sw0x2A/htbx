@@ -5,8 +5,8 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"net/http/httputil"
-	"strings"
 	"strconv"
+	"strings"
 )
 
 func main() {
@@ -15,7 +15,14 @@ func main() {
 	rtr.HandleFunc("/dump", dumpRequestHandler)
 	rtr.HandleFunc("/ip", remoteAddrHandler)
 	rtr.HandleFunc("/useragent", userAgentHandler)
-	http.ListenAndServe(":8080", rtr)
+	http.ListenAndServe(":8080", globals(rtr))
+}
+
+func globals(h http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Strict-Transport-Security", "max-age=31536000; includeSubDomains")
+		h.ServeHTTP(w, r)
+	})
 }
 
 func dumpRequestHandler(w http.ResponseWriter, r *http.Request) {

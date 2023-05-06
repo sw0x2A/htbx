@@ -5,8 +5,7 @@ handlers:
   mime_type: text/plain
   static_files: static/index.html
   upload: static/index.html
-- url: /(.*\.(gif|png|jpg))$
-  static_files: static/\1
-  upload: static/.*\.(gif|png|jpg)$
+  http_headers:
+    Strict-Transport-Security: max-age=31536000; includeSubDomains
 - url: /.*
   script: _go_app
