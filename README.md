@@ -3,7 +3,7 @@
 ## Commands
 
 | Command        | Returns             |
-| -------------- | ------------------- |
+|----------------|---------------------|
 | /dump          | request dump        |
 | /ip            | remote address      |
 | /status/[code] | status code         |
